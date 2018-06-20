@@ -14,8 +14,8 @@
             <div class="small-6 columns">
                 <h1 class="text-center">YOU</h1>
                 <div class="healthbar">
-                    <div class="healthbar text-center" :style="{backgroundColor: healthBgColor, margin: healthMargin, color: healthColor, width: youHealth + '%'}">
-                        {{ youHealth }}
+                    <div class="healthbar text-center" :style="{backgroundColor: healthBgColor, margin: healthMargin, color: healthColor, width: playerHealth + '%'}">
+                        {{ playerHealth }}
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         <section v-if="isRunning" class="row controls">
             <div class="small-12 columns">
                 <button @click="attack" id="attack">ATTACK</button>
-                <button id="special-attack">SPECIAL ATTACK</button>
+                <button  @click="specialAttack" id="special-attack">SPECIAL ATTACK</button>
                 <button id="heal">HEAL</button>
                 <button id="give-up">GIVE UP</button>
             </div>
@@ -45,7 +45,12 @@
             <div class="small-12 columns">
                 <ul>
                     <li>
-
+                        <div v-for="number in playerAttacks" class="player-turn">
+                                <p>Player did {{ number }} damage</p>
+                        </div>
+                        <div v-for="number in monsterAttacks" class="monster-turn">
+                                <p>Monster did {{ number }} damage</p>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -60,14 +65,39 @@
                 healthColor: 'white',
                 isRunning: false,
                 monsterHealth: 100,
-                youHealth: 100,
+                playerHealth: 100,
+                playerAttacks: [],
+                monsterAttacks: [],
+                round: 0,
 
             },
             methods: {
                 attack: function () {
-                    this.monsterHealth -= (Math.floor(Math.random() * 15) + 1)
-                    this.youHealth -= (Math.floor(Math.random() * 15) + 1)
-                    if(this.youHealth <= 0) {
+                    this.playerAttacks.push((Math.floor(Math.random() * 10) + 1))
+                    this.playerHealth -= this.playerAttacks[this.round]
+                    this.monsterAttacks.push((Math.floor(Math.random() * 10) + 1))
+                    this.playerHealth -= this.playerAttacks[this.round]
+                    this.healthListener
+                    this.round++
+                    console.log(this.playerAttacks)
+                },
+
+                specialAttack: function () {
+                    this.monsterHealth -= (Math.floor(Math.random() * 20) + 7)
+                    this.playerHealth -= (Math.floor(Math.random() * 20) + 7)
+                    this.healthListener
+                },
+
+                restartGame: function () {
+                    this.monsterHealth = 100;
+                    this.playerHealth = 100;
+                    this.isRunning = false;
+                }
+            },
+            computed: {
+                healthListener: function () {
+                    
+                    if (this.playerHealth <= 0) {
                         alert("You Lost!");
                         this.restartGame()
                     } else if (this.monsterHealth <= 0) {
@@ -75,14 +105,6 @@
                         this.restartGame()
                     }
                 },
-                restartGame: function () {
-                    this.monsterHealth = 100;
-                    this.youHealth = 100;
-                    this.isRunning = false;
-                }
-            },
-            computed: {
-
             }
         })
     </script>
