@@ -35,9 +35,9 @@
         </section>
         <section v-if="isRunning" class="row controls">
             <div class="small-12 columns">
-                <button @click="attack" id="attack">ATTACK</button>
-                <button  @click="specialAttack" id="special-attack">SPECIAL ATTACK</button>
-                <button id="heal">HEAL</button>
+                <button @click="attack(10)" id="attack">ATTACK</button>
+                <button @click="attack(20)" id="special-attack">SPECIAL ATTACK</button>
+                <button  @click="heal()" id="heal">HEAL</button>
                 <button id="give-up">GIVE UP</button>
             </div>
         </section>
@@ -46,10 +46,10 @@
                 <ul>
                     <li>
                         <div v-for="number in playerAttacks" class="player-turn">
-                                <p>Player did {{ number }} damage</p>
+                            <p>Player did {{ number }} damage</p>
                         </div>
                         <div v-for="number in monsterAttacks" class="monster-turn">
-                                <p>Monster did {{ number }} damage</p>
+                            <p>Monster did {{ number }} damage</p>
                         </div>
                     </li>
                 </ul>
@@ -72,20 +72,33 @@
 
             },
             methods: {
-                attack: function () {
-                    this.playerAttacks.push((Math.floor(Math.random() * 10) + 1))
-                    this.playerHealth -= this.playerAttacks[this.round]
-                    this.monsterAttacks.push((Math.floor(Math.random() * 10) + 1))
-                    this.playerHealth -= this.playerAttacks[this.round]
+                attack: function (damage) {
+                    this.playerAttack(damage)
+                    this.monsterAttack(damage)
                     this.healthListener
-                    this.round++
-                    console.log(this.playerAttacks)
+                    this.round++;
                 },
 
-                specialAttack: function () {
-                    this.monsterHealth -= (Math.floor(Math.random() * 20) + 7)
-                    this.playerHealth -= (Math.floor(Math.random() * 20) + 7)
+                playerAttack: function (damage) {
+                    this.playerAttacks.push((Math.floor(Math.random() * damage) + 1))
+                    this.monsterHealth -= this.playerAttacks[this.round]
+                },
+
+                monsterAttack: function (damage) {
+                    this.monsterAttacks.push((Math.floor(Math.random() * damage) + 1))
+                    this.playerHealth -= this.playerAttacks[this.round]
+                },
+
+                specialAttack: function (damage) {
+                    this.monsterHealth -= (Math.floor(Math.random() * damage) + 7)
+                    this.playerHealth -= (Math.floor(Math.random() * damage) + 7)
                     this.healthListener
+                },
+
+                heal: function () {
+                    if (this.playerHealth < 80) {
+                        this.playerHealth += 10;
+                    }
                 },
 
                 restartGame: function () {
@@ -96,13 +109,13 @@
             },
             computed: {
                 healthListener: function () {
-                    
+
                     if (this.playerHealth <= 0) {
                         alert("You Lost!");
-                        this.restartGame()
+                        window.location.reload(true); 
                     } else if (this.monsterHealth <= 0) {
                         alert("Congratulations, You Won!")
-                        this.restartGame()
+                        window.location.reload(true); 
                     }
                 },
             }
